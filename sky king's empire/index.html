@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Clone</title>
+    <style>
+        /* Internal CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #141414;
+            color: #e5e5e5;
+        }
+
+        header {
+            background-color: #000;
+            padding: 20px;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+        }
+
+        nav ul li {
+            margin-left: 20px;
+        }
+
+        nav ul li a {
+            color: #e5e5e5;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+
+        .search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
+            width: 300px;
+        }
+
+        .search-container input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px 0 0 5px;
+            border: 1px solid #333;
+            background-color: #333;
+            color: #e5e5e5;
+            outline: none;
+        }
+
+        .search-container input[type="text"]::placeholder {
+            color: #888;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 1px solid #333;
+            background-color: #e50914;
+            color: white;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            outline: none;
+        }
+
+        .search-container button:hover {
+            background-color: #f40612;
+        }
+
+        .autocomplete-items {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 100%;
+            border: 1px solid #333;
+            border-top: none;
+            background-color: #333;
+            z-index: 1000;
+            border-radius: 0 0 5px 5px;
+        }
+
+        .autocomplete-items div {
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        .autocomplete-items div:hover {
+            background-color: #444;
+        }
+
+        .hero {
+            position: relative;
+            height: 600px;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .hero video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -1; /* Ensure video is behind text */
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            padding: 100px 20px 20px;
+        }
+
+        .hero h1 {
+            font-size: 60px;
+            margin: 0;
+        }
+
+        .hero p {
+            font-size: 20px;
+            margin-top: 10px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .hero button {
+            background-color: #e50914;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-transform: uppercase;
+        }
+
+        .hero button:hover {
+            background-color: #f40612;
+        }
+
+        .section {
+            padding: 50px 20px;
+        }
+
+        .section h2 {
+            margin-bottom: 20px;
+        }
+
+        .row {
+            display: flex;
+            overflow-x: auto;
+            gap: 20px;
+            padding-bottom: 20px;
+        }
+
+        .row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .row .item {
+            width: 200px;
+            position: relative;
+            cursor: pointer;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .row .item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.6);
+        }
+
+        .row .item img {
+            width: 100%;
+            border-radius: 10px;
+        }
+
+        .row .item .info {
+            position: absolute;
+            bottom: 50px; /* Ensure there is space for the play button */
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px;
+            text-align: center;
+            z-index: 2; /* Ensure the info is above the play button */
+            border-radius: 0 0 10px 10px;
+        }
+
+        .row .item a{
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #e50914;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: background-color 0.3s, transform 0.3s;
+            z-index: 3; /* Ensure button is on top of other elements */
+        }
+
+        .row .item a:hover {
+            background-color: #f40612;
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        footer {
+            background-color: #000;
+            color: #e5e5e5;
+            padding: 20px;
+            text-align: center;
+        }
+
+        footer a {
+            color: #e5e5e5;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 80%;
+            max-width: 800px;
+            background: #000;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content iframe {
+            width: 100%;
+            height: 450px;
+            border: none;
+            border-radius: 10px;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 24px;
+            color: #e5e5e5;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header>
+        <div class="header-container">
+            <img src="v.jpg" class="logo">
+            <div class="search-container">
+                <input type="text" id="search-bar" placeholder="Search...">
+                <button id="search-button">Search</button>
+                <div id="autocomplete-list" class="autocomplete-items"></div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Series</a></li>
+                    <li><a href="#">Movies</a></li>
+                    <li><a href="#">New Releases</a></li>
+                    <li><a href="#">My List</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <video src="background-video.mp4" autoplay muted loop></video>
+        <div class="hero-content">
+            <h1>Watch Now with Netflix</h1>
+            <p>Your ultimate destination for movies and TV shows. Stream now and enjoy endless entertainment.</p>
+            <button onclick="window.location.href='#popular-trailers';">Explore</button>
+        </div>
+    </section>
+
+    <!-- Featured Movie Section -->
+    <section class="section">
+        <h2>Featured Movie</h2>
+        <div class="row">
+            <div class="item" data-title="Featured Movie Title">
+                <img src="https://via.placeholder.com/200x300?text=Featured+Movie" alt="Featured Movie">
+               <a href="https://drive.google.com/file/d/1h_6dJ69kw8gFWdLaSfdkDOBNwrQFP7NV/view?usp=sharing" target="_blank">Play</a>
+                <div class="info">
+                    <h3>Featured Movie Title</h3>
+                    <p>Release Date: 2024</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Popular Trailers Section -->
+    <section class="section">
+        <h2>Popular Trailers</h2>
+        <div id="popular-trailers" class="row">
+            <div class="item" data-title="BadLand Hunters">
+                <img src="https://m.media-amazon.com/images/M/MV5BZjM2OGFkMjUtODdmMi00Y2UzLTljMjQtMDFmYmMzOGNmYjIzXkEyXkFqcGdeQXVyMTMzNzIyNDc1._V1_.jpg" alt="Movie 1">
+                <a href="https://drive.google.com/file/d/1h_6dJ69kw8gFWdLaSfdkDOBNwrQFP7NV/view?usp=sharing" target="_blank">Play</a>
+                <div class="info">
+                    <h3>BadLand Hunters</h3>
+                    <p>Release Date: 2024</p>
+                </div>
+            </div>
+            <div class="item" data-title="Movie Title 2">
+                <img src="netflix.jpg" alt="Movie 2">
+                <a href="https://drive.google.com/file/d/1h_6dJ69kw8gFWdLaSfdkDOBNwrQFP7NV/view?usp=sharing" target="_blank">Play</a>
+                <div class="info">
+                    <h3>Movie Title 2</h3>
+                    <p>Release Date: 2024</p>
+                </div>
+            </div>
+            <!-- Add more items as needed -->
+        </div>
+    </section>
+
+    <!-- Trending Now Section -->
+    <section class="section">
+        <h2>Trending Now</h2>
+        <div id="trending-trailers" class="row">
+            <div class="item" data-title="Trending Title 1">
+                <img src="https://via.placeholder.com/200x300?text=Trending+1" alt="Trending 1">
+                <button class="play-button" onclick="openModal('google-drive-file-id-3')">Play</button>
+                <div class="info">
+                    <h3>Trending Title 1</h3>
+                    <p>Release Date: 2024</p>
+                </div>
+            </div>
+            <div class="item" data-title="Trending Title 2">
+                <img src="https://via.placeholder.com/200x300?text=Trending+2" alt="Trending 2">
+                <button class="play-button" onclick="openModal('google-drive-file-id-4')">Play</button>
+                <div class="info">
+                    <h3>Trending Title 2</h3>
+                    <p>Release Date: 2024</p>
+                </div>
+            </div>
+            <!-- Add more items as needed -->
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 Netflix Clone. All rights reserved. | <a href="#">Privacy Policy</a> | <a href="#">Terms of Use</a></p>
+    </footer>
+
+    <!-- Modal -->
+    <div id="video-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <iframe id="video-player" src="" allowfullscreen></iframe>
+        </div>
+    </div>
+
+    <!-- Internal JavaScript -->
+    <script>
+        // Sample data for autocomplete
+        const data = [
+            "BadLand Hunters",
+            "Movie Title 2",
+            "Movie Title 3",
+            "Movie Title 4",
+            "Trending Title 1",
+            "Trending Title 2",
+            "Trending Title 3",
+            "Trending Title 4"
+        ];
+
+        const searchBar = document.getElementById('search-bar');
+        const searchButton = document.getElementById('search-button');
+        const autocompleteList = document.getElementById('autocomplete-list');
+        const popularTrailers = document.getElementById('popular-trailers');
+        const trendingTrailers = document.getElementById('trending-trailers');
+
+        searchBar.addEventListener('input', function() {
+            const value = this.value;
+            autocompleteList.innerHTML = '';
+
+            if (!value) return;
+
+            const filteredData = data.filter(item => item.toLowerCase().includes(value.toLowerCase()));
+            filteredData.forEach(item => {
+                const div = document.createElement('div');
+                div.textContent = item;
+                div.addEventListener('click', function() {
+                    searchBar.value = this.textContent;
+                    autocompleteList.innerHTML = '';
+                    filterCards(searchBar.value);
+                });
+                autocompleteList.appendChild(div);
+            });
+        });
+
+        searchButton.addEventListener('click', function() {
+            const query = searchBar.value;
+            if (query) {
+                filterCards(query);
+            }
+        });
+
+        document.addEventListener('click', function(e) {
+            if (e.target !== searchBar && e.target !== searchButton) {
+                autocompleteList.innerHTML = '';
+            }
+        });
+
+        function filterCards(query) {
+            const allCards = [...popularTrailers.querySelectorAll('.item'), ...trendingTrailers.querySelectorAll('.item')];
+            allCards.forEach(card => {
+                const title = card.dataset.title.toLowerCase();
+                if (title.includes(query.toLowerCase())) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        function openModal(fileId) {
+            const modal = document.getElementById('video-modal');
+            const iframe = document.getElementById('video-player');
+            iframe.src = `https://drive.google.com/file/d/${fileId}/preview`;
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('video-modal');
+            const iframe = document.getElementById('video-player');
+            iframe.src = '';
+            modal.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
